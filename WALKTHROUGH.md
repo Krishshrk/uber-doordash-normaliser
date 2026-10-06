@@ -1,4 +1,4 @@
-# Nomni — System Walkthrough
+# System Walkthrough
 
 ## What it does
 
