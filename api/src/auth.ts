@@ -6,7 +6,6 @@ type RawRequest = Request & { rawBody?: Buffer };
 // ---------------------------------------------------------------------------
 // Uber: HMAC-SHA256 of raw request body bytes, keyed with client secret.
 // Header: X-Uber-Signature (lowercase hex).
-// Docs §2.2 + §6.2: sign raw bytes before any JSON parsing; constant-time compare.
 // ---------------------------------------------------------------------------
 export function verifyUber(req: Request, res: Response, next: NextFunction) {
   const secret = process.env.UBER_CLIENT_SECRET ?? '';
@@ -30,9 +29,7 @@ export function verifyUber(req: Request, res: Response, next: NextFunction) {
 
 // ---------------------------------------------------------------------------
 // DoorDash: compare Authorization header to configured token.
-// §9 item A: exact scheme not published. Implemented as a bearer token
-// compared to DOORDASH_WEBHOOK_AUTH. Verify against DoorDash Developer Portal
-// before production use.
+// compared to DOORDASH_WEBHOOK_AUTH.
 // ---------------------------------------------------------------------------
 export function verifyDoorDash(req: Request, res: Response, next: NextFunction) {
   const secret = process.env.DOORDASH_WEBHOOK_AUTH ?? '';
