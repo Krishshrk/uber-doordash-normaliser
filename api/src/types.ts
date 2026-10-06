@@ -1,6 +1,6 @@
 export type Provider = 'uber' | 'doordash';
 
-// §8 — internal status set
+// internal status set
 // new → accepted → ready → completed  (forward only)
 // canceled and rejected are terminal exits at any point
 export type OrderStatus =
