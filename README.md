@@ -83,7 +83,7 @@ Empty body, 200 — per Uber docs. Anything else triggers retries (7 total, expo
 
 Without `UBER_ACCESS_TOKEN` the API synthesises a minimal order from the webhook IDs (dev fallback). Set `UBER_ACCESS_TOKEN` and optionally `UBER_API_BASE` to point at a local mock to trigger the real Get Order fetch.
 
-Run twice — the second run updates the same row, not a duplicate.
+Run twice, the second run updates the same row, not a duplicate.
 
 ### DoorDash Marketplace webhook
 
@@ -199,9 +199,9 @@ Real response (seeded demo data):
 | `line_items[].name` | `order.categories[].items[].name` | Items nested under categories |
 | `line_items[].quantity` | `order.categories[].items[].quantity` | |
 | `line_items[].unit_price_cents` | `order.categories[].items[].price` + Σ `extras[].options[].price × quantity` | Integer minor units assumed |
-| `total_cents` | `order.subtotal + order.tax` | Our rule — see conflicts log item 3 |
-| `currency` | *(not in payload)* | Hardcoded `USD` — see conflicts log item C |
-| `created_at` | *(not in payload)* | Webhook receipt time — see conflicts log item C |
+| `total_cents` | `order.subtotal + order.tax` | Our rule see conflicts log item 3 |
+| `currency` | *(not in payload)* | Hardcoded `USD` see conflicts log item C |
+| `created_at` | *(not in payload)* | Webhook receipt time see conflicts log item C |
 | `raw_payload` | Full webhook body | Stored for dispute/debug |
 
 ---
