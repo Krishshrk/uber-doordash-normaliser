@@ -147,7 +147,7 @@ export function fromDoorDashOrder(
   const customerName =
     [consumer.first_name, consumer.last_name].filter(Boolean).join(' ') || 'Unknown';
 
-  // §9 item 3: total_cents = subtotal + tax (tips excluded; tax may be remitted by DoorDash)
+  // item 3: total_cents = subtotal + tax (tips excluded; tax may be remitted by DoorDash)
   const totalCents = Number(order.subtotal ?? 0) + Number(order.tax ?? 0);
 
   return {
