@@ -1,0 +1,52 @@
+{
+  "id": "153dd7f1-339d-4619-940c-418943c14636",
+  "display_id": "14636",
+  "current_state": "CREATED",
+  "type": "DELIVERY_BY_UBER",
+  "brand": "UBER_EATS",
+  "placed_at": "2024-01-15T12:00:00+00:00",
+  "estimated_ready_for_pickup_at": "2024-01-15T12:25:00+00:00",
+  "store": {
+    "id": "store-uuid-001",
+    "name": "Demo Kitchen"
+  },
+  "eater": {
+    "first_name": "Jane",
+    "last_name": "D",
+    "phone": "+15550001234",
+    "phone_code": "1"
+  },
+  "cart": {
+    "items": [
+      {
+        "id": "item-001",
+        "instance_id": "inst-001",
+        "title": "Margherita Pizza",
+        "quantity": 1,
+        "price": {
+          "unit_price": { "amount": 1299, "currency_code": "USD", "formatted_amount": "$12.99" },
+          "total_price": { "amount": 1299, "currency_code": "USD", "formatted_amount": "$12.99" }
+        },
+        "selected_modifier_groups": []
+      },
+      {
+        "id": "item-002",
+        "instance_id": "inst-002",
+        "title": "Garlic Bread",
+        "quantity": 2,
+        "price": {
+          "unit_price": { "amount": 399, "currency_code": "USD", "formatted_amount": "$3.99" },
+          "total_price": { "amount": 798, "currency_code": "USD", "formatted_amount": "$7.98" }
+        },
+        "selected_modifier_groups": []
+      }
+    ]
+  },
+  "payment": {
+    "charges": {
+      "total":     { "amount": 2097, "currency_code": "USD", "formatted_amount": "$20.97" },
+      "sub_total": { "amount": 2097, "currency_code": "USD", "formatted_amount": "$20.97" },
+      "tax":       { "amount":  189, "currency_code": "USD", "formatted_amount": "$1.89" }
+    }
+  }
+}

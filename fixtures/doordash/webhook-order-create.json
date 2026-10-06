@@ -1,0 +1,57 @@
+{
+  "event": {
+    "type": "OrderCreate",
+    "status": "NEW"
+  },
+  "order": {
+    "id": "dd-order-fixture-001",
+    "store": {
+      "merchant_supplied_id": "store-123",
+      "provider_type": "doordash"
+    },
+    "consumer": {
+      "id": 9007199254740993,
+      "first_name": "John",
+      "last_name": "Smith",
+      "phone": "+15550009876",
+      "email": "j.smith@example.com"
+    },
+    "categories": [
+      {
+        "name": "Main",
+        "items": [
+          {
+            "merchant_supplied_id": "burrito-bowl",
+            "name": "Burrito Scram-Bowl",
+            "quantity": 1,
+            "price": 1200,
+            "special_instructions": "",
+            "extras": [
+              {
+                "name": "Toppings",
+                "options": [
+                  { "merchant_supplied_id": "ketchup", "name": "Ketchup", "price": 0, "quantity": 1 },
+                  { "merchant_supplied_id": "salt",    "name": "Salt",    "price": 0, "quantity": 1 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "subtotal": 1200,
+    "tax": 108,
+    "tip_amount": 200,
+    "merchant_tip_amount": 0,
+    "is_pickup": false,
+    "estimated_pickup_time": "2024-01-15T12:30:00Z",
+    "order_special_instructions": "",
+    "is_tax_remitted_by_doordash": true,
+    "tax_amount_remitted_by_doordash": 108,
+    "commission_type": "standard",
+    "delivery_short_code": "ABC123",
+    "fulfillment_type": "dx_delivery",
+    "experience": "doordash",
+    "is_plastic_ware_option_selected": false
+  }
+}
