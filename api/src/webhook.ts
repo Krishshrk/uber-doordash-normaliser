@@ -9,7 +9,6 @@ const router = Router();
 // ---------------------------------------------------------------------------
 // Provider detection — payload shape only, no injected fields, no query params.
 //
-// Doc §6.1 (authoritative):
 //   Uber:     event_type starts with "orders."
 //             AND meta.resource_id present
 //             AND resource_href present
@@ -51,7 +50,7 @@ function authMiddleware(req: Request, res: Response, next: NextFunction) {
 }
 
 // ---------------------------------------------------------------------------
-// Uber flow (doc §2.1, §6.3):
+// Uber flow:
 //   1. 200 empty body sent immediately by the route handler before this runs
 //   2. Dedupe on event_id — Uber retries up to 7 times with same event_id
 //   3. Only orders.notification / orders.scheduled.notification create rows;
@@ -79,7 +78,7 @@ async function handleUber(body: Record<string, unknown>, rawWebhook: unknown): P
 
   const meta        = (body.meta as Record<string, unknown>) ?? {};
   const resourceId  = String(meta.resource_id ?? '');
-  // resource_href is the canonical GET URL (doc §2.2); build fallback only if absent
+  // resource_href is the canonical GET URL, build fallback only if absent
   const resourceUrl = String(
     body.resource_href ??
     `${process.env.UBER_API_BASE ?? 'https://api.uber.com'}/v2/eats/order/${resourceId}`
@@ -92,7 +91,7 @@ async function handleUber(body: Record<string, unknown>, rawWebhook: unknown): P
     const { data } = await axios.get<Record<string, unknown>>(resourceUrl, {
       headers: {
         Authorization:     `Bearer ${token}`,
-        'Accept-Encoding': 'gzip', // doc §2.3: response can be very large
+        'Accept-Encoding': 'gzip', // response can be very large
       },
     });
     orderPayload = data;
@@ -113,7 +112,7 @@ async function handleUber(body: Record<string, unknown>, rawWebhook: unknown): P
 }
 
 // ---------------------------------------------------------------------------
-// DoorDash flow (doc §3.1, §6.3):
+// DoorDash flow :
 //   Webhook IS the full order — no secondary fetch needed.
 //   Respond 202 (async confirm later); 200 = synchronously accepted (doc §9 item B).
 //   Dedup via UNIQUE(provider, external_order_id) in the upsert.
@@ -143,11 +142,11 @@ router.post('/webhook', authMiddleware, async (req: Request, res: Response) => {
 
   try {
     if (provider === 'uber') {
-      // Doc §6.3: respond 200 empty body immediately, then process asynchronously
+      // respond 200 empty body immediately, then process asynchronously
       res.status(200).send();
       await handleUber(body, body);
     } else {
-      // Doc §6.3 + §9 item B: 202 = async confirm later
+      // 202 = async confirm later
       await handleDoorDash(body, receivedAt);
       res.status(202).send();
     }
