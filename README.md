@@ -50,7 +50,7 @@ All are optional in dev — auth is skipped when the variable is unset, so fixtu
 The Uber webhook is a thin notification. It carries only IDs; the full order is fetched separately via Get Order.
 
 ```bash
-# Sign the exact bytes being sent (HMAC-SHA256 of raw body, keyed with client secret)
+# With signature (production)
 SIG=$(openssl dgst -sha256 -hmac "$UBER_CLIENT_SECRET" -r \
   fixtures/uber/webhook-orders-notification.json | cut -d' ' -f1)
 
@@ -59,26 +59,110 @@ curl -i -X POST http://localhost:3001/api/webhook \
   -H "X-Environment: sandbox" \
   -H "X-Uber-Signature: $SIG" \
   --data-binary @fixtures/uber/webhook-orders-notification.json
+
+# Dev (no UBER_CLIENT_SECRET set — auth skipped)
+curl -X POST http://localhost:3001/api/webhook \
+  -H "Content-Type: application/json" \
+  -d @fixtures/uber/webhook-orders-notification.json
 ```
 
-Expected response: `HTTP 200` with empty body (per Uber docs).
+Real response:
 
-Without `UBER_ACCESS_TOKEN` the API uses a synthesised minimal order object (dev fallback). Set `UBER_ACCESS_TOKEN` and optionally `UBER_API_BASE` to point at a local mock to trigger the real Get Order fetch.
+```
+HTTP/1.1 200 OK
+Content-Length: 0
+```
 
-Run twice — the second run must update the same row, not create a duplicate.
+Empty body, 200 — per Uber docs. Anything else triggers retries (7 total, exponential backoff).
+
+Without `UBER_ACCESS_TOKEN` the API synthesises a minimal order from the webhook IDs (dev fallback). Set `UBER_ACCESS_TOKEN` and optionally `UBER_API_BASE` to point at a local mock to trigger the real Get Order fetch.
+
+Run twice — the second run updates the same row, not a duplicate.
 
 ### DoorDash Marketplace webhook
 
 ```bash
-curl -i -X POST http://localhost:3001/api/webhook \
+# With auth token (production)
+curl -X POST http://localhost:3001/api/webhook \
   -H "Content-Type: application/json" \
   -H "Authorization: $DOORDASH_WEBHOOK_AUTH" \
-  --data-binary @fixtures/doordash/webhook-order-create.json
+  -d @fixtures/doordash/webhook-order-create.json
+
+# Dev (no DOORDASH_WEBHOOK_AUTH set — auth skipped)
+curl -X POST http://localhost:3001/api/webhook \
+  -H "Content-Type: application/json" \
+  -d @fixtures/doordash/webhook-order-create.json
 ```
 
-Expected response: `HTTP 202` empty body (async confirm mode — see conflicts log item B).
+Real response:
 
-Run twice — the second run must update the same row, not create a duplicate.
+```
+HTTP/1.1 202 Accepted
+Content-Length: 0
+```
+
+202 = async confirm mode. 200 would mean synchronously accepted at DoorDash — see conflicts log item B.
+
+Run twice — the second run updates the same row, not a duplicate.
+
+### Advance an order status
+
+```bash
+curl -X PATCH http://localhost:3001/api/orders/{id}/status \
+  -H "Content-Type: application/json" \
+  -d '{"status":"accepted"}'
+```
+
+Real response:
+
+```json
+{"ok":true}
+```
+
+Valid statuses: `new → accepted → ready → completed`. Terminal exits: `canceled`, `rejected`. Moves backward or from a terminal state return 400.
+
+### List all orders
+
+```bash
+curl http://localhost:3001/api/orders
+```
+
+Real response (seeded demo data):
+
+```json
+[
+  {
+    "id": "72f03168-33cc-4e57-a265-52535fee7a4c",
+    "provider": "doordash",
+    "external_order_id": "dd-order-001",
+    "status": "new",
+    "customer": "Carol T",
+    "line_items": [
+      { "name": "Burrito Bowl",  "quantity": 1, "unit_price_cents": 1200 },
+      { "name": "Chips & Guac", "quantity": 1, "unit_price_cents":  650 }
+    ],
+    "total_cents": 1850,
+    "currency": "USD",
+    "created_at": "2026-10-05T19:58:40.257Z",
+    "raw_payload": { "..." : "..." }
+  },
+  {
+    "id": "9c58bcdf-575b-4a92-a234-2834dfc042f2",
+    "provider": "uber",
+    "external_order_id": "uber-order-001",
+    "status": "accepted",
+    "customer": "Alice M",
+    "line_items": [
+      { "name": "Margherita Pizza", "quantity": 1, "unit_price_cents": 1299 },
+      { "name": "Garlic Bread",     "quantity": 2, "unit_price_cents":  399 }
+    ],
+    "total_cents": 2097,
+    "currency": "USD",
+    "created_at": "2026-10-05T19:54:40.246Z",
+    "raw_payload": { "..." : "..." }
+  }
+]
+```
 
 ---
 
